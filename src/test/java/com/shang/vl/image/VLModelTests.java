@@ -31,6 +31,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -113,7 +114,7 @@ public class VLModelTests {
         final String imageUrl = imageUploadService.uploadAndGetImageUrl(path);
 
         final WorkflowResult workflowResult = requirementWorkflow.run(new WorkflowRequest()
-                .setImageUrl(imageUrl)
+                .setImageUrls(List.of(imageUrl))
                 .setOriginalDemand("")
                 .setMode(WorkflowMode.REQUIREMENT_ONLY));
 
@@ -182,13 +183,15 @@ public class VLModelTests {
 //        final Path path = Paths.get(System.getProperty("user.dir"), "storage/873d23de41c947d2b3f221a894a8b1ac.png");
 //        final Path path = Paths.get(System.getProperty("user.dir"), "storage/case_detail.png");
         final Path path = Paths.get(System.getProperty("user.dir"), "storage/origin.jpg");
+        final Path path2 = Paths.get(System.getProperty("user.dir"), "storage/case_detail.png");
 //        final String oriDemand = "TFMS收到撤销惩戒指令后，立即反馈反诈一体化平台“处置成功”，当TFMS反馈反诈一体
 //        化平台6次重发都未收到305报文时，允许操作台修改编辑指令手动重发，直到TFMS收到305报文为止。";
         final String oriDemand = "";
         final String imageUrl = imageUploadService.uploadAndGetImageUrl(path);
+        final String imageUrl2 = imageUploadService.uploadAndGetImageUrl(path2);
 
         final WorkflowResult workflowResult = requirementWorkflow.run(new WorkflowRequest()
-                .setImageUrl(imageUrl)
+                .setImageUrls(List.of(imageUrl))
                 .setOriginalDemand(oriDemand)
                 .setMode(WorkflowMode.FULL_PIPELINE));
 
@@ -224,7 +227,7 @@ public class VLModelTests {
         final String oriDemand = "";
 
         final WorkflowResult workflowResult = requirementWorkflow.run(new WorkflowRequest()
-                .setImageUrl("")
+                .setImageUrls(List.of(""))
                 .setOriginalDemand(oriDemand)
                 .setMode(WorkflowMode.REQUIREMENT_AND_TEST_CASES));
 

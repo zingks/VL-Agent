@@ -5,6 +5,7 @@ import com.shang.vl.prompt.PromptKeys;
 import com.shang.vl.prompt.PromptManager;
 import com.shang.vl.workflow.agent.RequirementAgent;
 import dev.langchain4j.data.message.ImageContent;
+import dev.langchain4j.data.message.Content;
 import dev.langchain4j.data.message.SystemMessage;
 import dev.langchain4j.data.message.TextContent;
 import dev.langchain4j.data.message.UserMessage;
@@ -13,6 +14,9 @@ import dev.langchain4j.model.chat.request.ChatRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 基于 Prompt 模板的需求生成 Agent。
@@ -31,17 +35,22 @@ public class PromptRequirementAgent implements RequirementAgent {
     }
 
     @Override
-    public String generateRequirementFromImage(final String imageUrl, final String originalDemand) {
-        if (StringUtils.isBlank(imageUrl)) {
-            throw new IllegalArgumentException("imageUrl cannot be blank");
+    public String generateRequirementFromImages(final List<String> imageUrls, final String originalDemand) {
+        if (imageUrls == null || imageUrls.stream().allMatch(StringUtils::isBlank)) {
+            throw new IllegalArgumentException("imageUrls cannot be empty");
         }
 
         final String systemPrompt = promptManager.loadTemplate(PromptKeys.IMAGE_TO_DEMAND);
         final String userInput = buildUserInput(originalDemand);
-        final UserMessage userMessage = UserMessage.from(
-                ImageContent.from(imageUrl, ImageContent.DetailLevel.HIGH),
-                TextContent.from(userInput)
-        );
+        final List<Content> contents = new ArrayList<>(imageUrls.size() + 1);
+        for (final String imageUrl : imageUrls) {
+            if (StringUtils.isBlank(imageUrl)) {
+                continue;
+            }
+            contents.add(ImageContent.from(imageUrl, ImageContent.DetailLevel.HIGH));
+        }
+        contents.add(TextContent.from(userInput));
+        final UserMessage userMessage = UserMessage.from(contents);
 
         final ResponseHandler responseHandler = new ResponseHandler();
         streamingVLModel.chat(ChatRequest.builder()

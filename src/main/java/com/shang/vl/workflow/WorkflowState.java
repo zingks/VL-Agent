@@ -5,6 +5,7 @@ import lombok.experimental.Accessors;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * LangGraph 流程共享状态。
@@ -20,6 +21,6 @@ public class WorkflowState implements Serializable {
     private String originalDemand;
     private String requirement;
     private String testCases;
-    private String imageUrl;
+    private List<String> imageUrls;
     private String review;
 }

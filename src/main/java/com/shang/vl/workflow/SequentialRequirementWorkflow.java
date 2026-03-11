@@ -45,13 +45,13 @@ public class SequentialRequirementWorkflow implements RequirementWorkflow {
         if (request == null) {
             throw new IllegalArgumentException("request cannot be null");
         }
-        if (StringUtils.isBlank(request.getImageUrl())) {
-            throw new IllegalArgumentException("imageUrl cannot be blank");
+        if (request.getImageUrls() == null || request.getImageUrls().stream().allMatch(StringUtils::isBlank)) {
+            throw new IllegalArgumentException("imageUrls cannot be empty");
         }
 
         final WorkflowMode mode = request.getMode() == null ? WorkflowMode.FULL_PIPELINE : request.getMode();
         final WorkflowState workflowState = new WorkflowState()
-                .setImageUrl(request.getImageUrl())
+                .setImageUrls(request.getImageUrls())
                 .setOriginalDemand(StringUtils.defaultString(request.getOriginalDemand()));
 
         // WorkflowState 作为单一对象挂在 graph state 中，后续每个节点都在同一对象上读写字段并回传。

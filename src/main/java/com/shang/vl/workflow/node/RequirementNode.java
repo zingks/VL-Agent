@@ -18,8 +18,8 @@ public class RequirementNode extends AbstractWorkflowNode {
 
     public Map<String, Object> execute(final AgentState state) {
         final WorkflowState workflowState = getWorkflowState(state);
-        final String requirement = requirementAgent.generateRequirementFromImage(
-                workflowState.getImageUrl(),
+        final String requirement = requirementAgent.generateRequirementFromImages(
+                workflowState.getImageUrls(),
                 workflowState.getOriginalDemand()
         );
         workflowState.setRequirement(requirement);
