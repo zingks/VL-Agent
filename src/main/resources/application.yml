@@ -2,5 +2,9 @@ vl:
   prompt:
     templates:
       imageToDemand: prompts/requirement/image-to-demand.md
+#      imageToDemand: prompts/requirement/需求分析专家-claude版.md
+#      imageToDemand: prompts/requirement/需求分析专家-gemini版.md
+#      imageToDemand: prompts/requirement/需求分析专家-gpt版.md
       requirementToTestCases: prompts/testcase/requirement-to-testcases.md
+#      requirementToTestCases: prompts/testcase/testcase.md
       testCasesReview: prompts/review/testcases-review.md

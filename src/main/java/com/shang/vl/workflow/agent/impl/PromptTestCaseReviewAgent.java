@@ -3,7 +3,9 @@ package com.shang.vl.workflow.agent.impl;
 import com.shang.vl.handler.ResponseHandler;
 import com.shang.vl.prompt.PromptKeys;
 import com.shang.vl.prompt.PromptManager;
+import com.shang.vl.workflow.WorkflowState;
 import com.shang.vl.workflow.agent.TestCaseReviewAgent;
+import dev.langchain4j.data.message.SystemMessage;
 import dev.langchain4j.data.message.TextContent;
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.chat.StreamingChatModel;
@@ -11,8 +13,6 @@ import dev.langchain4j.model.chat.request.ChatRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-
-import java.util.Map;
 
 /**
  * 基于 Prompt 模板的测试用例评审 Agent。
@@ -31,21 +31,36 @@ public class PromptTestCaseReviewAgent implements TestCaseReviewAgent {
     }
 
     @Override
-    public String reviewTestCases(final String testCases) {
+    public String reviewTestCases(final WorkflowState state) {
+        if (state == null) {
+            throw new IllegalArgumentException("state cannot be null");
+        }
+
+        final String testCases = StringUtils.defaultString(state.getTestCases());
         if (StringUtils.isBlank(testCases)) {
             throw new IllegalArgumentException("testCases cannot be blank");
         }
 
-        final String prompt = promptManager.render(PromptKeys.TEST_CASES_REVIEW, Map.of(
-                "testCases", testCases
-        ));
-        final UserMessage userMessage = UserMessage.from(TextContent.from(prompt));
+        final String systemPrompt = promptManager.loadTemplate(PromptKeys.TEST_CASES_REVIEW);
+        final SystemMessage systemMessage = SystemMessage.from(systemPrompt);
+        final UserMessage userMessage = UserMessage.from(TextContent.from(buildReviewInput(state)));
 
         final ResponseHandler responseHandler = new ResponseHandler();
         streamingTextModel.chat(ChatRequest.builder()
-                .messages(userMessage)
+                .messages(systemMessage, userMessage)
                 .build(), responseHandler);
 
-        return responseHandler.getResponseText();
+        final String result = responseHandler.getResponseText();
+        state.setReview(result);
+        return result;
+    }
+
+    private String buildReviewInput(final WorkflowState state) {
+        final String requirement = StringUtils.defaultString(state.getRequirement());
+        final String testCases = StringUtils.defaultString(state.getTestCases());
+        if (StringUtils.isBlank(requirement)) {
+            return "测试用例如下：\n" + testCases;
+        }
+        return "测试用例如下：\n" + testCases;
     }
 }
