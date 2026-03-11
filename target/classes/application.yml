@@ -1,6 +1,0 @@
-vl:
-  prompt:
-    templates:
-      imageToDemand: prompts/requirement/image-to-demand.md
-      requirementToTestCases: prompts/testcase/requirement-to-testcases.md
-      testCasesReview: prompts/review/testcases-review.md
